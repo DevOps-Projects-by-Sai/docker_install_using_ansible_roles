@@ -1,0 +1,28 @@
+---
+# tasks file for docker_install_using_roles
+- name: Check openssh and openssl has latest version
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - openssh
+    - openssl
+  ignore_errors: true
+
+- name: Check docker exists or not
+  ansible.builtin.command: docker --version
+  register: output
+  ignore_errors: true
+
+- name: Print the output of the command
+  ansible.builtin.debug:
+    var: output
+  ignore_errors: true
+
+- name: install docker if not exists
+  ansible.builtin.apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+  when:
+    output.failed == true
